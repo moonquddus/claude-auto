@@ -50,6 +50,10 @@ things in order:
 1. A question that starts with `Do you want to` and ends with `?`.
 2. The first option, `1. Yes`.
 
+Claude Code does not always write the spaces between the words. In full-screen
+mode it moves the cursor to the start of the next word instead. The wrapper
+accepts a space or an escape sequence at each of these positions.
+
 When it finds both, it sends `1` and a carriage return. This is the same input
 as a manual selection of `1. Yes`.
 

@@ -2,9 +2,11 @@
 
 # Claude Code asks "Do you want to proceed?", "Do you want to create <file>?"
 # and several more variants. Option 1 is always "Yes".
-set question {Do you want to [^?\r\n]{0,120}\?}
+# The full-screen display does not write the spaces between words. It moves the
+# cursor instead, so each space can arrive as an escape sequence.
+set question {Do[^\r\n]{1,24}you[^\r\n]{1,24}want[^\r\n]{1,24}to[^?\r\n]{0,200}\?}
 # Claude Code draws ANSI attributes between "1." and "Yes".
-set option {1\..{0,20}Yes}
+set option {1\.[^\r\n]{0,60}Yes}
 set debounce 1000
 
 spawn -noecho claude {*}$argv

@@ -50,6 +50,7 @@ ignores() {
 approves "approves a bash prompt"          proceed.txt
 approves "approves a file edit prompt"     edit.txt
 approves "approves through ANSI attributes" ansi.txt
+approves "approves a full-screen frame"     fullscreen.txt
 
 ignores "ignores the question in prose"    prose.txt
 ignores "ignores an option list alone"     option-only.txt
