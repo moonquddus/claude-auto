@@ -20,11 +20,15 @@ to Claude Code, so you can type, interrupt and quit as usual.
 
 ## Install
 
-Copy the script to a directory on your `PATH` and make it executable:
+Copy the script to a directory on your `PATH` and make it executable. Make the
+directory first, because `install` does not create it:
 
 ```sh
-install -m 755 claude-auto.sh ~/bin/claude-auto
+mkdir -p ~/.local/bin
+install -m 755 claude-auto.sh ~/.local/bin/claude-auto
 ```
+
+If `claude-auto` is not found after this, add the directory to your `PATH`.
 
 ## Use
 
