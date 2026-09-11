@@ -1,0 +1,30 @@
+#!/usr/bin/env expect
+
+# claude-auto.sh calls interact, which needs a terminal on stdin. This driver
+# supplies one, and can type at the wrapper the way a user would.
+
+set wrapper [lindex $argv 0]
+set rest [lrange $argv 1 end]
+
+set timeout 20
+spawn -noecho $wrapper {*}$rest
+set pty $spawn_out(slave,name)
+
+if {[info exists env(DRIVER_SIZE)]} {
+    # Wait for the wrapper to install its WINCH handler.
+    sleep 1
+    stty rows [lindex $env(DRIVER_SIZE) 0] columns [lindex $env(DRIVER_SIZE) 1] < $pty
+}
+
+if {[info exists env(DRIVER_TYPE)]} {
+    sleep 1
+    send -- $env(DRIVER_TYPE)
+}
+
+expect {
+    eof {}
+    timeout { send_user "\ndriver: timed out\n"; exit 99 }
+}
+
+catch wait result
+exit [lindex $result 3]

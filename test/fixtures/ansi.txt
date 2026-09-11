@@ -1,0 +1,1 @@
+\r\n\033[2K Do you want to create README.md?\r\n\033[1m\033[38;5;208m❯\033[0m \033[1m1.\033[0m\033[22m \033[4mYes\033[0m\r\n   2. No\r\n

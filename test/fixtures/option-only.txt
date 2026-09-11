@@ -1,0 +1,1 @@
+\r\n Here are the options I considered:\r\n\r\n   1. Yes, cache the result\r\n   2. No, recompute each time\r\n

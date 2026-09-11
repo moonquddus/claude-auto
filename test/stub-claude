@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Stands in for the claude binary. Draws a fixture frame, then records every
+# byte the wrapper sends back.
+set -u
+
+printf 'args:%s\n' "$*" >> "$STUB_RECORD"
+
+trap 'printf "size:%s\n" "$(stty size)" >> "$STUB_RECORD"' WINCH
+
+for _ in $(seq "${STUB_REPEAT:-1}"); do
+    [ -n "${STUB_FRAME:-}" ] && printf '%b' "$(cat "$STUB_FRAME")"
+done
+
+input=""
+deadline=$((SECONDS + ${STUB_WAIT:-2}))
+while [ "$SECONDS" -lt "$deadline" ]; do
+    IFS= read -r -d '' -t 1 -n1 c || continue
+    # The line discipline turns the wrapper's carriage return into a newline.
+    [ "$c" = $'\n' ] && c="<LF>"
+    input="$input$c"
+done
+printf 'input:%s\n' "$input" >> "$STUB_RECORD"
+
+exit "${STUB_EXIT:-0}"
