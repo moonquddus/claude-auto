@@ -51,12 +51,24 @@ approves "approves a bash prompt"          proceed.txt
 approves "approves a file edit prompt"     edit.txt
 approves "approves through ANSI attributes" ansi.txt
 approves "approves a full-screen frame"     fullscreen.txt
+approves "approves a sandbox network prompt" sandbox.txt
+approves "approves a full-screen sandbox frame" sandbox-fullscreen.txt
+approves "approves a sandbox frame with a wrapped question" sandbox-wrapped.txt
 
 ignores "ignores the question in prose"    prose.txt
 ignores "ignores an option list alone"     option-only.txt
 
+# Claude Code ignores input sent less than 150 ms after a dialog appears.
+STUB_FRAME="$fixtures/sandbox.txt" STUB_WAIT=4 run
+waited=$(field delay)
+check "waits out the input refusal window" "yes" \
+    "$(python3 -c "print('yes' if $waited >= 0.3 else 'no ($waited s)')")"
+
 STUB_FRAME="$fixtures/proceed.txt" STUB_REPEAT=5 STUB_WAIT=4 run
 check "approves a redrawn frame once" "1<LF>" "$(field input)"
+
+CLAUDE_AUTO_TRACE="$tmp/trace" STUB_FRAME="$fixtures/sandbox.txt" run
+check "records a trace" "yes" "$(grep -qc 'outside of sandbox' "$tmp/trace" 2>/dev/null && echo yes)"
 
 STUB_FRAME= run --resume "fix the failing tests"
 check "forwards arguments" "--resume fix the failing tests" "$(field args)"

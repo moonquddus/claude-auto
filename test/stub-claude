@@ -11,14 +11,22 @@ for _ in $(seq "${STUB_REPEAT:-1}"); do
     [ -n "${STUB_FRAME:-}" ] && printf '%b' "$(cat "$STUB_FRAME")"
 done
 
+now() { python3 -c 'import time; print(time.time())'; }
+frame_at=$(now)
+
 input=""
+first_at=""
 deadline=$((SECONDS + ${STUB_WAIT:-2}))
 while [ "$SECONDS" -lt "$deadline" ]; do
     IFS= read -r -d '' -t 1 -n1 c || continue
+    [ -z "$first_at" ] && first_at=$(now)
     # The line discipline turns the wrapper's carriage return into a newline.
     [ "$c" = $'\n' ] && c="<LF>"
     input="$input$c"
 done
 printf 'input:%s\n' "$input" >> "$STUB_RECORD"
+if [ -n "$first_at" ]; then
+    printf 'delay:%s\n' "$(python3 -c "print(round($first_at - $frame_at, 2))")" >> "$STUB_RECORD"
+fi
 
 exit "${STUB_EXIT:-0}"

@@ -47,15 +47,24 @@ The script starts Claude Code on a pseudo-terminal and connects your keyboard
 to it. At the same time it reads the output of Claude Code and looks for two
 things in order:
 
-1. A question that starts with `Do you want to` and ends with `?`.
+1. A question that starts with `Do you want to` and ends with `?`, or the
+   title `Network request outside of sandbox`.
 2. The first option, `1. Yes`.
+
+The sandbox dialog draws its question in a box. A narrow window wraps the
+question across two lines, and then only the title identifies the dialog.
 
 Claude Code does not always write the spaces between the words. In full-screen
 mode it moves the cursor to the start of the next word instead. The wrapper
 accepts a space or an escape sequence at each of these positions.
 
-When it finds both, it sends `1` and a carriage return. This is the same input
-as a manual selection of `1. Yes`.
+When it finds both, it waits 400 ms and then sends `1` and a carriage return.
+This is the same input as a manual selection of `1. Yes`.
+
+The wait is necessary. Claude Code refuses input that arrives less than 150 ms
+after a dialog appears, so that a stray keypress cannot approve it. An
+immediate `1` is discarded, and a dialog does not redraw while it waits for an
+answer, so the wrapper gets no second chance.
 
 Two checks keep the wrapper quiet:
 
@@ -65,6 +74,15 @@ Two checks keep the wrapper quiet:
 
 The script also copies the size of your terminal to Claude Code, and does it
 again when you change the size of the window.
+
+## Trace
+
+Set `CLAUDE_AUTO_TRACE` to a file to record every byte that Claude Code writes.
+Use this to build a pattern for a dialog that the wrapper does not answer.
+
+```sh
+CLAUDE_AUTO_TRACE=/tmp/claude-auto.trace claude-auto
+```
 
 ## Log
 
@@ -90,6 +108,8 @@ pseudo-terminal. They need no network and no credentials.
 
 - The wrapper answers `Yes` to every permission prompt that it finds. It
   removes that safety check. Use it only for work that you accept in advance.
+- In sandbox mode, this includes `Network request outside of sandbox`. The
+  wrapper allows the connection to each host that Claude Code asks about.
 - The wrapper finds a prompt by its text. A change to the text in a new version
   of Claude Code can stop it. If this occurs, the wrapper sends nothing and you
   answer the prompt yourself.

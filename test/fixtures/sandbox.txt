@@ -1,0 +1,1 @@
+\r\n Network request outside of sandbox\r\n\r\n   Host: api.example.com\r\n\r\n Do you want to allow this connection?\r\n \033[36m❯ 1. Yes\033[0m\r\n   2. Yes, and don't ask again for api.example.com\r\n   3. No, and tell Claude what to do differently (esc)\r\n
