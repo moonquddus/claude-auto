@@ -55,8 +55,23 @@ approves "approves a sandbox network prompt" sandbox.txt
 approves "approves a full-screen sandbox frame" sandbox-fullscreen.txt
 approves "approves a sandbox frame with a wrapped question" sandbox-wrapped.txt
 
+approves "approves a fetch prompt"          fetch.txt
+
 ignores "ignores the question in prose"    prose.txt
 ignores "ignores an option list alone"     option-only.txt
+
+# Claude Code shows queued dialogs one at a time. The next one is drawn as soon
+# as the last is answered, well inside the debounce window.
+queued() {
+    local name=$1 first=$2 second=$3
+    STUB_FRAME="$fixtures/$first" STUB_FRAME2="$fixtures/$second" \
+        STUB_GAP=0.3 STUB_WAIT=6 run
+    check "$name" "1<LF>" "$(field input2)"
+}
+
+queued "approves a dialog queued behind another" proceed.txt fetch.txt
+queued "approves a queued dialog that repeats the question" sandbox.txt sandbox-other.txt
+queued "approves a queued full-screen dialog" fullscreen.txt sandbox-fullscreen.txt
 
 # Claude Code ignores input sent less than 150 ms after a dialog appears.
 STUB_FRAME="$fixtures/sandbox.txt" STUB_WAIT=4 run

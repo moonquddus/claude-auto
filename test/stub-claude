@@ -15,16 +15,25 @@ now() { python3 -c 'import time; print(time.time())'; }
 frame_at=$(now)
 
 input=""
+input2=""
 first_at=""
+drawn2=0
 deadline=$((SECONDS + ${STUB_WAIT:-2}))
 while [ "$SECONDS" -lt "$deadline" ]; do
     IFS= read -r -d '' -t 1 -n1 c || continue
     [ -z "$first_at" ] && first_at=$(now)
     # The line discipline turns the wrapper's carriage return into a newline.
     [ "$c" = $'\n' ] && c="<LF>"
-    input="$input$c"
+    if [ "$drawn2" = 1 ]; then input2="$input2$c"; else input="$input$c"; fi
+    # STUB_FRAME2 is the dialog that Claude Code queues behind the first one.
+    if [ -n "${STUB_FRAME2:-}" ] && [ "$drawn2" = 0 ] && [ "$c" = "<LF>" ]; then
+        sleep "${STUB_GAP:-0.3}"
+        printf '%b' "$(cat "$STUB_FRAME2")"
+        drawn2=1
+    fi
 done
 printf 'input:%s\n' "$input" >> "$STUB_RECORD"
+[ -n "${STUB_FRAME2:-}" ] && printf 'input2:%s\n' "$input2" >> "$STUB_RECORD"
 if [ -n "$first_at" ]; then
     printf 'delay:%s\n' "$(python3 -c "print(round($first_at - $frame_at, 2))")" >> "$STUB_RECORD"
 fi
